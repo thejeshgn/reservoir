@@ -11,7 +11,7 @@ year = 2011
 week = 1
 
 
-for week in range(1,53): 
+for week in range(8,53): 
     for reservoir in reservoirs:
         con = lite.connect('./database/reservoir.sqlite')
         cur = con.cursor()
@@ -50,34 +50,38 @@ for week in range(1,53):
         html_post_src = request_session.post("https://www.ksndmc.org/Reservoir_Details.aspx",data=payload,cookies=html_get_src.cookies,headers = user_agent)
         soup = BeautifulSoup(html_post_src.content)
         tables = soup.findAll(id="ctl00_cpMainContent_GridView1")
-        for k in range(0, len(tables[0].contents)):
-            if k <= 1:
-                continue
-            #ignore if not tr
-            columns = []
-            if getattr(tables[0].contents[k], 'name', None) == 'tr':
-                row = tables[0].contents[k]
-                for r in range(0, len(row.contents)):
-                    if getattr(row.contents[r], 'name', None) == 'td': 
-                        td_column = row.contents[r]
-                        #print td_column
-                        #print td_column
-                        if len(td_column.contents[0]) > 0:                       
-                            value = td_column.contents[0]
-                            columns.append(value)
-                        else:
-                            columns.append("")
+        if len(tables) > 0:
+            for k in range(0, len(tables[0].contents)):
+                if k <= 1:
+                    continue
+                #ignore if not tr
+                columns = []
+                if getattr(tables[0].contents[k], 'name', None) == 'tr':
+                    row = tables[0].contents[k]
+                    for r in range(0, len(row.contents)):
+                        if getattr(row.contents[r], 'name', None) == 'td': 
+                            td_column = row.contents[r]
+                            #print td_column
+                            #print td_column
+                            if len(td_column.contents[0]) > 0:                       
+                                value = td_column.contents[0]
+                                columns.append(value)
+                            else:
+                                columns.append("")
+                else:
+                    continue
+                try:
+                    UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
+                    insert_data = {"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":str(week)  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY }
+                    print insert_data
+                    cur.execute('INSERT INTO reservoir_details (RESERVOIR , YEAR , WEEK_NO  , FLOW_DATE , PRESENT_STORAGE_TMC , RES_LEVEL_FT , INFLOW_CUSECS , OUTFLOW_CUECS,UNIQUE_KEY) VALUES (:RESERVOIR , :YEAR , :WEEK_NO  , :FLOW_DATE , :PRESENT_STORAGE_TMC , :RES_LEVEL_FT , :INFLOW_CUSECS , :OUTFLOW_CUECS, :UNIQUE_KEY)', insert_data)
+                    con.commit()
+                except lite.IntegrityError:
+                    print 'Duplicate, couldnt add'
+                time.sleep(3)
             else:
-                continue
-            try:
-                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
-                insert_data = {"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":str(week)  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY }
-                print insert_data
-                cur.execute('INSERT INTO reservoir_details (RESERVOIR , YEAR , WEEK_NO  , FLOW_DATE , PRESENT_STORAGE_TMC , RES_LEVEL_FT , INFLOW_CUSECS , OUTFLOW_CUECS,UNIQUE_KEY) VALUES (:RESERVOIR , :YEAR , :WEEK_NO  , :FLOW_DATE , :PRESENT_STORAGE_TMC , :RES_LEVEL_FT , :INFLOW_CUSECS , :OUTFLOW_CUECS, :UNIQUE_KEY)', insert_data)
-                con.commit()
-            except lite.IntegrityError:
-                print 'Duplicate, couldnt add'
-            time.sleep(3) 
+                time.sleep(3)
+                print "**************** NOTHING RETURNED *********************"
         con.close()
 
 
