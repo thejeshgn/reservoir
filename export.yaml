@@ -1,0 +1,30 @@
+common:
+  database: "sqlite:///./database/reservoir.sqlite"
+  prefix: export/
+  format: csv
+
+exports:
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "reservoir/csv/{{RESERVOIR}}.csv"
+    format: csv
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "year/csv/{{YEAR}}.csv"
+    format: csv
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "reservoir/json/{{RESERVOIR}}.csv"
+    format: json
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "year/json/{{YEAR}}.csv"
+    format: json
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "everything/everything.csv"
+    format: csv
+
+  - query: "SELECT * FROM reservoir_details"
+    filename: "everything/everything.json"
+    format: json
