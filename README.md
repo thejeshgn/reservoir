@@ -46,7 +46,8 @@ Fingerprint: C7D4 1911 9893 ADAF 27B0 FCAA BFFC 8DD3 C06D D6B0
 
 
 ## License ##
-IMD Data Scraper - Scrapes IMD data and saves into SQLITE. Can also export into CSV, JSON
+Data Scraper IMD data scrapes reservoir data and saves into SQLITE. Can also export into CSV, JSON
+ 
 Copyright (C) 2014  Thejesh GN <i@thejeshgn.com>
 
 This program is free software: you can redistribute it and/or modify
