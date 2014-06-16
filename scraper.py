@@ -11,7 +11,7 @@ year = 2011
 week = 1
 
 
-for week in range(30,53): 
+for week in range(31,53): 
     for reservoir in reservoirs:
         con = lite.connect('./database/reservoir.sqlite')
         cur = con.cursor()
