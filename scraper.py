@@ -11,7 +11,7 @@ year = 2011
 week = 1
 
 
-for week in range(8,53): 
+for week in range(22,53): 
     for reservoir in reservoirs:
         con = lite.connect('./database/reservoir.sqlite')
         cur = con.cursor()
@@ -19,6 +19,7 @@ for week in range(8,53):
         request_session = requests.Session()
         html_src = ""
         user_agent = {'User-agent': 'Mozilla/5.0'}
+        time.sleep(30)
         html_get_src = request_session.get("http://www.ksndmc.org/Reservoir_Details.aspx",headers = user_agent)
         page = BeautifulSoup(html_get_src.text)
         __VIEWSTATE = page.find(id="__VIEWSTATE")["value"]
@@ -46,7 +47,7 @@ for week in range(8,53):
              "__EVENTARGUMENT":" "
 
         }
-        user_agent = {'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/34.0.1847.116 Chrome/34.0.1847.116 Safari/537.36','Referer':'https://www.ksndmc.org/Reservoir_Details.aspx','Content-Type':'application/x-www-form-urlencoded','Origin':'https://www.ksndmc.org','Host':'www.ksndmc.org','Accept-Encoding':'gzip,deflate,sdch','Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'}
+        user_agent = {'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/34.0.1847.116 Chrome/34.0.1847.116 Safari/537.36','Referer':'https://www.ksndmc.org/Reservoir_Details.aspx','Content-Type':'application/x-www-form-urlencoded','Origin':'https://www.ksndmc.org','Host':'www.ksndmc.org','Accept-Encoding':'gzip,deflate,sdch','Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'}        
         html_post_src = request_session.post("https://www.ksndmc.org/Reservoir_Details.aspx",data=payload,cookies=html_get_src.cookies,headers = user_agent)
         soup = BeautifulSoup(html_post_src.content)
         tables = soup.findAll(id="ctl00_cpMainContent_GridView1")
@@ -78,9 +79,7 @@ for week in range(8,53):
                     con.commit()
                 except lite.IntegrityError:
                     print 'Duplicate, couldnt add'
-                time.sleep(3)
             else:
-                time.sleep(3)
                 print "**************** NOTHING RETURNED *********************"
         con.close()
 
