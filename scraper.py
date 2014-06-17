@@ -7,11 +7,11 @@ import time
 from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2011
+year = 2012
 week = 1
 
 
-for week in range(50,53): 
+for week in range(1,53): 
     for reservoir in reservoirs:
         con = lite.connect('./database/reservoir.sqlite')
         cur = con.cursor()
