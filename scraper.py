@@ -7,7 +7,7 @@ import time
 from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2014
+year = 2013
 start_week = 1
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
