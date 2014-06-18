@@ -8,16 +8,24 @@ from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
 year = 2014
-week = 1
+start_week = 1
 import dataset
+db = dataset.connect('sqlite:///./database/reservoir.sqlite')
+reservoir_table = db['reservoir_details']
+result = db.query("SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(2014)+"'")
+for row in result:
+    start_week = row['start_week']
 
-for week in range(11,53): 
+print "Starting with WEEK_NO="+str(start_week)+" of the YEAR="+str(year) 
+
+
+for week in range(start_week,53): 
     for reservoir in reservoirs:
-
-        
-        con = lite.connect('./database/reservoir.sqlite')
-        cur = con.cursor()
-        access_url = "http://www.ksndmc.org/Reservoir_Details.aspx"
+        reservoir_completion_status = reservoir_table.find_one(RESERVOIR=reservoir, YEAR=str(year), WEEK_NO=week)
+        if reservoir_completion_status:
+            print  "completed"
+            continue
+        print "QUERY FOR ="+reservoir
         request_session = requests.Session()
         html_src = ""
         user_agent = {'User-agent': 'Mozilla/5.0'}
@@ -73,16 +81,15 @@ for week in range(11,53):
                                 columns.append("")
                 else:
                     continue
-                try:
-                    UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
-                    insert_data = {"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":str(week)  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY }
-                    print insert_data
-                    cur.execute('INSERT INTO reservoir_details (RESERVOIR , YEAR , WEEK_NO  , FLOW_DATE , PRESENT_STORAGE_TMC , RES_LEVEL_FT , INFLOW_CUSECS , OUTFLOW_CUECS,UNIQUE_KEY) VALUES (:RESERVOIR , :YEAR , :WEEK_NO  , :FLOW_DATE , :PRESENT_STORAGE_TMC , :RES_LEVEL_FT , :INFLOW_CUSECS , :OUTFLOW_CUECS, :UNIQUE_KEY)', insert_data)
-                    con.commit()
-                except lite.IntegrityError:
-                    print 'Duplicate, couldnt add'
-            else:
-                print "**************** NOTHING RETURNED *********************"
-        con.close()
 
+                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
+                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY })
+                print insert_data
+                reservoir_table.insert(insert_data)
+        else:
+            print "**************** NOTHING RETURNED *********************"
+            UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
+            insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
+            print insert_data
+            reservoir_table.insert(insert_data)
 
