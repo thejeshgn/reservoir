@@ -9,10 +9,12 @@ reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','K
 #weeks = [1]
 year = 2014
 week = 1
+import dataset
 
-
-for week in range(7,53): 
+for week in range(11,53): 
     for reservoir in reservoirs:
+
+        
         con = lite.connect('./database/reservoir.sqlite')
         cur = con.cursor()
         access_url = "http://www.ksndmc.org/Reservoir_Details.aspx"
