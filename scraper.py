@@ -7,12 +7,12 @@ import time
 from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2013
+year = 2012
 start_week = 1
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
 reservoir_table = db['reservoir_details']
-result = db.query("SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(2014)+"'")
+result = db.query("SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(year)+"'")
 for row in result:
     start_week = row['start_week']
 
