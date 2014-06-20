@@ -12,7 +12,9 @@ start_week = 1
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
 reservoir_table = db['reservoir_details']
-result = db.query("SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(year)+"'")
+query_1 = "SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(year)+"'"
+print query_1
+result = db.query(query_1)
 for row in result:
     start_week = row['start_week']
 
@@ -20,12 +22,14 @@ print "Starting with WEEK_NO="+str(start_week)+" of the YEAR="+str(year)
 
 
 for week in range(start_week,53): 
+    print "Now for week="+str(week)
     for reservoir in reservoirs:
         reservoir_completion_status = reservoir_table.find_one(RESERVOIR=reservoir, YEAR=str(year), WEEK_NO=week)
+        print "RESERVOIR ="+reservoir
         if reservoir_completion_status:
             print  "completed"
             continue
-        print "QUERY FOR ="+reservoir
+        print "Starting now"
         request_session = requests.Session()
         html_src = ""
         user_agent = {'User-agent': 'Mozilla/5.0'}
@@ -61,12 +65,14 @@ for week in range(start_week,53):
         html_post_src = request_session.post("https://www.ksndmc.org/Reservoir_Details.aspx",data=payload,cookies=html_get_src.cookies,headers = user_agent)
         soup = BeautifulSoup(html_post_src.content)
         tables = soup.findAll(id="ctl00_cpMainContent_GridView1")
-        if len(tables) > 0:
+        if len(tables) > 1:
+            #print tables[0].contents
             for k in range(0, len(tables[0].contents)):
                 if k <= 1:
                     continue
                 #ignore if not tr
                 columns = []
+                print getattr(tables[0].contents[k], 'name', None)
                 if getattr(tables[0].contents[k], 'name', None) == 'tr':
                     row = tables[0].contents[k]
                     for r in range(0, len(row.contents)):
