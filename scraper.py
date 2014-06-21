@@ -65,7 +65,7 @@ for week in range(start_week,53):
         html_post_src = request_session.post("https://www.ksndmc.org/Reservoir_Details.aspx",data=payload,cookies=html_get_src.cookies,headers = user_agent)
         soup = BeautifulSoup(html_post_src.content)
         tables = soup.findAll(id="ctl00_cpMainContent_GridView1")
-        if len(tables) > 1:
+        if len(tables) > 0 and len(tables[0].contents) > 1 :
             #print tables[0].contents
             for k in range(0, len(tables[0].contents)):
                 if k <= 1:
