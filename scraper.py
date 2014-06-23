@@ -65,14 +65,15 @@ for week in range(start_week,53):
         html_post_src = request_session.post("https://www.ksndmc.org/Reservoir_Details.aspx",data=payload,cookies=html_get_src.cookies,headers = user_agent)
         soup = BeautifulSoup(html_post_src.content)
         tables = soup.findAll(id="ctl00_cpMainContent_GridView1")
-        if len(tables) > 0 and len(tables[0].contents) > 1 :
-            #print tables[0].contents
+
+        if len(tables) > 0 and len(tables[0].contents) > 2 :
+            inserted = False
             for k in range(0, len(tables[0].contents)):
+                print str(k)
                 if k <= 1:
                     continue
                 #ignore if not tr
                 columns = []
-                print getattr(tables[0].contents[k], 'name', None)
                 if getattr(tables[0].contents[k], 'name', None) == 'tr':
                     row = tables[0].contents[k]
                     for r in range(0, len(row.contents)):
@@ -87,11 +88,19 @@ for week in range(start_week,53):
                                 columns.append("")
                 else:
                     continue
-
+                inserted = True
                 UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
                 insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY })
                 print insert_data
                 reservoir_table.insert(insert_data)
+            #after the for loop if not inserted
+            if inserted == False:
+                print "**************** NOTHING INSERTED *********************"
+                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
+                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
+                print insert_data
+                reservoir_table.insert(insert_data)
+
         else:
             print "**************** NOTHING RETURNED *********************"
             UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
