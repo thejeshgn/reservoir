@@ -7,8 +7,10 @@ import time
 from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2010
+year = 2014
 start_week = 1
+end_week = 53
+
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
 reservoir_table = db['reservoir_details']
@@ -21,10 +23,15 @@ for row in result:
 if start_week == None:
     start_week = 1
 
-print "Starting with WEEK_NO="+str(start_week)+" of the YEAR="+str(year) 
+end_week = start_week + 2
+if end_week > 53:
+    end_week = 53
+
+print "Starting with FOR WEEK_NO="+str(start_week)+"  TO="+str(end_week)+" of the YEAR="+str(year) 
 
 
-for week in range(start_week,53): 
+
+for week in range(start_week,end_week): 
     print "Now for week="+str(week)
     for reservoir in reservoirs:
         reservoir_completion_status = reservoir_table.find_one(RESERVOIR=reservoir, YEAR=str(year), WEEK_NO=week)
@@ -102,12 +109,12 @@ for week in range(start_week,53):
                 UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
                 insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
                 print insert_data
-                reservoir_table.insert(insert_data)
+                #reservoir_table.insert(insert_data)
 
         else:
             print "**************** NOTHING RETURNED *********************"
             UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
             insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
             print insert_data
-            reservoir_table.insert(insert_data)
+            #reservoir_table.insert(insert_data)
 
