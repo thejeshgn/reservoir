@@ -7,7 +7,7 @@ import time
 from BeautifulSoup import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2012
+year = 2010
 start_week = 1
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
@@ -17,6 +17,9 @@ print query_1
 result = db.query(query_1)
 for row in result:
     start_week = row['start_week']
+
+if start_week == None:
+    start_week = 1
 
 print "Starting with WEEK_NO="+str(start_week)+" of the YEAR="+str(year) 
 
