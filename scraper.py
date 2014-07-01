@@ -10,6 +10,7 @@ reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','K
 year = 2014
 start_week = 1
 end_week = 53
+auto_mode = True
 
 import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
@@ -23,7 +24,7 @@ for row in result:
 if start_week == None:
     start_week = 1
 
-end_week = start_week + 2
+end_week = start_week + 3
 if end_week > 53:
     end_week = 53
 
@@ -106,15 +107,17 @@ for week in range(start_week,end_week):
             #after the for loop if not inserted
             if inserted == False:
                 print "**************** NOTHING INSERTED *********************"
-                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
-                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
-                print insert_data
-                #reservoir_table.insert(insert_data)
+                if auto_mode == False:
+                    UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
+                    insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
+                    print insert_data
+                    reservoir_table.insert(insert_data)
 
         else:
             print "**************** NOTHING RETURNED *********************"
-            UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
-            insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
-            print insert_data
-            #reservoir_table.insert(insert_data)
+            if auto_mode == False:
+                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
+                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
+                print insert_data
+                reservoir_table.insert(insert_data)
 
