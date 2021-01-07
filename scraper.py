@@ -1,13 +1,14 @@
 #couldnt get this thing to work
 #!/usr/bin/env python
 import sys
-import sqlite3 as lite
+#import sqlite3 as lite
 import requests
 import time
-from BeautifulSoup import BeautifulSoup
+import datetime
+from bs4 import BeautifulSoup
 reservoirs = ['Alamatti','Bhadra','Ghataprabha','Harangi','Hemavathi','K.R.S','Kabini','Linganamakki','Malaprabha','Narayanapura','Supa','Tungabhadra','Varahi']
 #weeks = [1]
-year = 2014
+year = 2020
 start_week = 1
 end_week = 53
 auto_mode = True
@@ -16,7 +17,7 @@ import dataset
 db = dataset.connect('sqlite:///./database/reservoir.sqlite')
 reservoir_table = db['reservoir_details']
 query_1 = "SELECT max(week_no) as start_week FROM reservoir_details where YEAR='"+str(year)+"'"
-print query_1
+print(query_1)
 result = db.query(query_1)
 for row in result:
     start_week = row['start_week']
@@ -24,29 +25,32 @@ for row in result:
 if start_week == None:
     start_week = 1
 
-end_week = start_week + 3
+end_week = start_week + 50
 if end_week > 53:
     end_week = 53
 
-print "Starting with FOR WEEK_NO="+str(start_week)+"  TO="+str(end_week)+" of the YEAR="+str(year) 
+#override the start
+#start_week = 1
+
+print("Starting with FOR WEEK_NO="+str(start_week)+"  TO="+str(end_week)+" of the YEAR="+str(year)) 
 
 
 
 for week in range(start_week,end_week): 
-    print "Now for week="+str(week)
-    for reservoir in reservoirs:
+    print("Now for week="+str(week))
+    for reservoir in reservoirs:        
         reservoir_completion_status = reservoir_table.find_one(RESERVOIR=reservoir, YEAR=str(year), WEEK_NO=week)
-        print "RESERVOIR ="+reservoir
+        print("RESERVOIR ="+reservoir)
         if reservoir_completion_status:
-            print  "completed"
+            print("completed")
             continue
-        print "Starting now"
+        time.sleep(3)            
+        print("Starting now")
         request_session = requests.Session()
         html_src = ""
         user_agent = {'User-agent': 'Mozilla/5.0'}
-        time.sleep(30)
         html_get_src = request_session.get("http://www.ksndmc.org/Reservoir_Details.aspx",headers = user_agent)
-        page = BeautifulSoup(html_get_src.text)
+        page = BeautifulSoup(html_get_src.text,features="html.parser")
         __VIEWSTATE = page.find(id="__VIEWSTATE")["value"]
         __PREVIOUSPAGE = page.find(id="__PREVIOUSPAGE")["value"]
         __EVENTVALIDATION = page.find(id="__EVENTVALIDATION")["value"]
@@ -80,7 +84,7 @@ for week in range(start_week,end_week):
         if len(tables) > 0 and len(tables[0].contents) > 2 :
             inserted = False
             for k in range(0, len(tables[0].contents)):
-                print str(k)
+                print(str(k))
                 if k <= 1:
                     continue
                 #ignore if not tr
@@ -100,24 +104,26 @@ for week in range(start_week,end_week):
                 else:
                     continue
                 inserted = True
-                UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)+str(columns[1])
-                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week  , "FLOW_DATE":columns[1] , "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY })
-                print insert_data
+                dobj = datetime.datetime.strptime(columns[1], '%d-%b-%Y')
+                convert_obj = dobj.strftime("%Y-%m-%d")                
+                UNIQUE_KEY = str(r["RESERVOIR"]).upper()+"-"+convert_obj                
+                insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week  , "FLOW_DATE": convert_obj, "PRESENT_STORAGE_TMC":columns[2] , "RES_LEVEL_FT":columns[3] , "INFLOW_CUSECS":columns[4] , "OUTFLOW_CUECS":columns[5],"UNIQUE_KEY":UNIQUE_KEY })
+                print(insert_data)
                 reservoir_table.insert(insert_data)
             #after the for loop if not inserted
             if inserted == False:
-                print "**************** NOTHING INSERTED *********************"
+                print("**************** NOTHING INSERTED *********************")
                 if auto_mode == False:
                     UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
                     insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
-                    print insert_data
+                    print(insert_data)
                     reservoir_table.insert(insert_data)
 
         else:
-            print "**************** NOTHING RETURNED *********************"
+            print("**************** NOTHING RETURNED *********************")
             if auto_mode == False:
                 UNIQUE_KEY = str(reservoir)+"_"+str(year)+"_"+str(week)
                 insert_data = dict({"RESERVOIR":reservoir , "YEAR":str(year) , "WEEK_NO":week ,"UNIQUE_KEY":UNIQUE_KEY })
-                print insert_data
+                print(insert_data)
                 reservoir_table.insert(insert_data)
 
